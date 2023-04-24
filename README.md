@@ -10,7 +10,7 @@ This is a web application built using Next.js and Replicate API that allows user
 
 ## Installation
 
-1. Clone the repository: `git clone https://github.com/your-username/photo-restorer.git`
+1. Clone the repository: `git clone https://github.com/abubalo/photo-restorer.git`
 2. Install dependencies: `npm install`
 3. Create a `.env` file with your Replicate API key and secret:
 
