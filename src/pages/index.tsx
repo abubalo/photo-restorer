@@ -7,8 +7,8 @@ import Head from "next/head";
 import UploadWidget from "../components/UploadWidget";
 import ErrorMessage from "../components/ErrorMessage";
 export default function Home() {
-  const [originalImg, setOriginalImg] = useState<File | null>();
-  const [restoredImg, setRestoredImg] = useState<File | null>();
+  const [originalImg, setOriginalImg] = useState<File | null>(null);
+  const [restoredImg, setRestoredImg] = useState<File | null>(null);
 
   const [onClose, setOnClose] = useState(false);
   const [onError, setOnError] = useState(true);
