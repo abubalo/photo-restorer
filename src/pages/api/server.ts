@@ -1,42 +1,50 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import axios from "axios";
+import Replicate from "replicate";
 
-type Data = {
-  prompt: string;
-};
+interface PromptUrl {
+  version: string;
+  input:{
+    imageUrl: string;
+
+  }
+}
+
+interface ExtendedNextApiRequest extends NextApiRequest {
+  body: {
+    imageUrl: string;
+  };
+}
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<string>
 ) {
+  const imageUrl = req.body.formData;
 
-  const imageUrl = req.body.imageUrl
-
-  const option = {
-    headers: {
-      Anthorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-        version: "9283608cc6b7be6b65a8e44983db012355fde4132009bf99d976b2f0896856a3",
-      input: { img: imageUrl, version: "v1.4", scale: 2 },
-    }),
-  };
-
-  const response = await axios.post(
-    "https://api.replicate.com/v1/predictions",
-    option
-  );
-
-  if (response.status !== 201) {
-    let error = await response.data;
-    res.statusCode = 500;
-
-    res.end(JSON.stringify({ detial: error.detial }));
-
-    return;
+  if (!imageUrl) {
+    res.status(401).json("Invlid input");
   }
-  const prediction = await response.data;
-  res.statusCode === 201;
-  res.end(JSON.stringify(prediction));
+
+  const ApiToken = process.env.REPLICATE_API_TOKEN;
+
+  if (!ApiToken) {
+    throw new Error("API Token is undifined");
+  }
+
+  const replicate = new Replicate({ auth: ApiToken });
+
+  try {
+    const output: any = await replicate.run(
+      "cjwbw/vqfr:ccd53a9a38ebbaa783a1e6318d22fa68c14c3aed66cc3589e53ef07d07f5be1d",
+      {
+        input: {
+          image: imageUrl,
+        },
+      }
+    );
+
+    res.status(201).json(output);
+  } catch (error: any) {
+    res.status(500).json(error);
+  }
 }
