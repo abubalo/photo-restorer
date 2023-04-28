@@ -8,7 +8,7 @@ type Props = {
 };
 
 
-const ErrorMessage = ({ message, onError, setOnError }: Props) => {
+const ErrorMessage = ({ message, onError, setOnError, }: Props) => {
 
   useEffect(()=>{
     if(onError){
