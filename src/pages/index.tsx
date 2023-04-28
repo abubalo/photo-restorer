@@ -2,16 +2,23 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Modal from "../components/Modal";
 import axios from "axios";
-import Loader from "../components/Loader";
 import Head from "next/head";
 import UploadWidget from "../components/UploadWidget";
 import ErrorMessage from "../components/ErrorMessage";
+
+
 export default function Home() {
+
   const [originalImg, setOriginalImg] = useState<File | null>(null);
   const [restoredImg, setRestoredImg] = useState<File | null>(null);
 
+  const [displayOrignalImg, setDisplayOrignalImg] = useState<string>("");
+  const [displayRestoredImg, setDisplayRestoredImg] = useState<string>("");
+
   const [onClose, setOnClose] = useState(false);
-  const [onError, setOnError] = useState(true);
+  const [onError, setOnError] = useState(false);
+  const [loading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   async function handleFileUpload() {
     try {
@@ -63,19 +70,22 @@ export default function Home() {
           </p>
         </div>
 
-        <UploadWidget setOriginalImg={setOriginalImg} setRestoredImg={setRestoredImg}/>
+        <UploadWidget setOriginalImg={setOriginalImg} setRestoredImg={setRestoredImg} setOnError={setOnError} setErrorMessage={setErrorMessage}    />
       </div>
 
       <Modal
-        originalImg={"/img2.jpg"}
-        restoredImg={"/img2.jpg"}
+        original={displayOrignalImg}
+        restored={displayRestoredImg}
+        // originalImg={"/img2.jpg"}
+        // restoredImg={"/img2.jpg"}
         setOnClose={setOnClose}
         onClose={onClose}
       />
       <ErrorMessage
-        message={"Something went wrong"}
+        message={"Something went wrong!"}
         onError={onError}
         setOnError={setOnError}
+        // message={errorMessage}
       />
     </main>
   );
