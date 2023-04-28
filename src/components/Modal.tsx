@@ -1,20 +1,23 @@
 import Image from "next/image";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "./Loader";
 
 interface Image {
-  originalImg: string;
-  restoredImg: string;
+  original: string ;
+  restored: string ;
   onClose: boolean;
   setOnClose: React.Dispatch<React.SetStateAction<boolean>>;
 }
 const Modal: FC<Image> = ({
-  originalImg,
-  restoredImg,
+  original,
+  restored,
   setOnClose,
   onClose,
 }) => {
+
+  const [loading, setIsLoading] = useState(false);
+
   return (
     <AnimatePresence>
       {onClose && (
@@ -38,21 +41,21 @@ const Modal: FC<Image> = ({
               <div className="flex flex-col items-center gap-3">
                 <p className="text-lg">Orignal image</p>
                 <Image
-                  src={originalImg}
+                  src={original}
                   width={500}
                   height={500}
                   alt="orignal image"
-                  className="block"
+                  className="block text-sm"
                 />
               </div>
               <div className="flex flex-col items-center gap-3">
                 <p className="text-lg">Restored image</p>
                 <Image
-                  src={restoredImg}
+                  src={restored}
                   width={500}
                   height={500}
                   alt="restored image"
-                  className="block"
+                  className="text-sm"
                 />
               </div>
             </div>
