@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosResponse} from "axios";
 import Dropzone, {
   DropzoneRootProps,
   DropzoneInputProps,
@@ -8,26 +8,41 @@ import Dropzone, {
 type Props = {
   setOriginalImg: React.Dispatch<React.SetStateAction<File | null>>;
   setRestoredImg: React.Dispatch<React.SetStateAction<File | null>>;
+  setOnError: React.Dispatch<React.SetStateAction<boolean>>;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
 };
-const UploadWidget = ({ setOriginalImg, setRestoredImg }: Props) => {
+
+
+
+const UploadWidget = ({ setOriginalImg, setRestoredImg, setOnError, setErrorMessage }: Props) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setSelectedFile(acceptedFiles[0]);
-  }, []);
 
-  async function uploadFile() {
-    try {
-      const response: AxiosResponse = await axios.post("/api/server", {
-        imageUrl: selectedFile,
-      });
-      const imageResponse = response.data;
-      setOriginalImg(selectedFile);
-      setRestoredImg(imageResponse);
-    } catch (error: any) {
-      console.log(error.message);
+  
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+  setSelectedFile(file);
+   
+    async function handleFileUpload() {
+      if(selectedFile){
+        const formData = new FormData();
+        formData.append("file", selectedFile)
+        try {
+          const response: AxiosResponse = await axios.post("/api/server", formData);
+          const imageResponse = response.data;
+          setOriginalImg(selectedFile);
+          setRestoredImg(imageResponse);
+        } catch (error: any) {
+          setOnError(true)
+          setErrorMessage(error.message)
+          console.log(error.message);
+        }
+      }
     }
-  }
+    handleFileUpload()
+  }, [setOriginalImg, setRestoredImg, selectedFile, setOnError, setErrorMessage]);
+
+  
   console.log(selectedFile);
   return (
     <Dropzone onDrop={onDrop} maxFiles={1}>
