@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Modal from "../components/Modal";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import Head from "next/head";
 import UploadWidget from "../components/UploadWidget";
 import ErrorMessage from "../components/ErrorMessage";
 
-
 export default function Home() {
-
   const [originalImg, setOriginalImg] = useState<File | null>(null);
   const [restoredImg, setRestoredImg] = useState<File | null>(null);
 
@@ -17,27 +15,34 @@ export default function Home() {
 
   const [onClose, setOnClose] = useState(false);
   const [onError, setOnError] = useState(false);
-  const [loading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  async function handleFileUpload() {
+  async function handleImageRestore() {
+    const imageUrl = originalImg;
     try {
-      await axios.post("/api/server");
+      const response: AxiosResponse = await axios.post("api/server", {
+        imageUrl,
+      });
+      const restoreImgResponse = await response.data;
+      setRestoredImg(restoreImgResponse);
     } catch (error: any) {
-      console.log(error.message);
+      setOnError(true);
+      setErrorMessage(error.message);
     }
   }
+
+  console.log({ originalImg, restoredImg });
 
   return (
     <main className="">
       <Head>
-        <title>PixelRevivr</title>
+        <title>PixelRevive</title>
         <meta name="description" content="Effortlessly restore images" />
         <meta name="author" content="Abubakar Balogun" />
         <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
       </Head>
       <header className="w-[90%] fixed container left-0 right-0 top-0 mx-auto flex justify-between items-center p-4 z-50">
-        <div className="text-2xl font-bold">PixelRevivr.io</div>
+        <div className="text-2xl font-bold">PixelRevive.io</div>
         <nav className="flex space-x-6">
           <Link
             href="https://github.com/abubalo/photo-restorer.git"
@@ -65,12 +70,18 @@ export default function Home() {
         <div className="text-center space-y-4">
           <h1 className="text-7xl font-bold">Effortlessly Restore Images</h1>
           <p className=" md:w-3/4 mx-auto md:text-lg">
-            Say goodbye to blurry, faded, and damaged images. <strong>PixelRevivr.io</strong> restores
-            your photos to their original quality and beyond.
+            Say goodbye to blurry, faded, and damaged images.{" "}
+            <strong>PixelRevive.io</strong> restores your photos to their
+            original quality and beyond.
           </p>
         </div>
 
-        <UploadWidget setOriginalImg={setOriginalImg} setRestoredImg={setRestoredImg} setOnError={setOnError} setErrorMessage={setErrorMessage}    />
+        <UploadWidget
+          setOriginalImg={setOriginalImg}
+          onUpload={handleImageRestore}
+          setOnError={setOnError}
+          setErrorMessage={setErrorMessage}
+        />
       </div>
 
       <Modal
@@ -82,10 +93,9 @@ export default function Home() {
         onClose={onClose}
       />
       <ErrorMessage
-        message={"Something went wrong!"}
         onError={onError}
         setOnError={setOnError}
-        // message={errorMessage}
+        message={errorMessage}
       />
     </main>
   );
