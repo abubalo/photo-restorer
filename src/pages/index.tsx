@@ -7,18 +7,14 @@ import UploadWidget from "../components/UploadWidget";
 import ErrorMessage from "../components/ErrorMessage";
 
 export default function Home() {
-  const [originalImg, setOriginalImg] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<File | string>("");
   const [restoredImg, setRestoredImg] = useState<File | null>(null);
-
-  const [displayOrignalImg, setDisplayOrignalImg] = useState<string>("");
-  const [displayRestoredImg, setDisplayRestoredImg] = useState<string>("");
 
   const [onClose, setOnClose] = useState(false);
   const [onError, setOnError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   async function handleImageRestore() {
-    const imageUrl = originalImg;
     try {
       const response: AxiosResponse = await axios.post("api/server", {
         imageUrl,
@@ -31,7 +27,7 @@ export default function Home() {
     }
   }
 
-  console.log({ originalImg, restoredImg });
+  console.log(imageUrl, restoredImg);
 
   return (
     <main className="">
@@ -50,20 +46,6 @@ export default function Home() {
           >
             Github
           </Link>
-          <Link
-            href=""
-            onClick={() => setOnClose(true)}
-            className="border hover:border-gray-500"
-          >
-            {onClose ? "Button" : "Modal"}
-          </Link>
-          <Link
-            href=""
-            onClick={() => setOnError(true)}
-            className="border hover:border-gray-500"
-          >
-            Error
-          </Link>
         </nav>
       </header>
       <div className="relative container mx-auto h-screen flex flex-col justify-center items-center  space-y-12 overflow-hidden">
@@ -77,7 +59,7 @@ export default function Home() {
         </div>
 
         <UploadWidget
-          setOriginalImg={setOriginalImg}
+          setImageUrl={setImageUrl}
           onUpload={handleImageRestore}
           setOnError={setOnError}
           setErrorMessage={setErrorMessage}
@@ -85,9 +67,9 @@ export default function Home() {
       </div>
 
       <Modal
-        original={displayOrignalImg}
-        restored={displayRestoredImg}
-        // originalImg={"/img2.jpg"}
+        original={imageUrl}
+        restored={""}
+        // imageUrl={"/img2.jpg"}
         // restoredImg={"/img2.jpg"}
         setOnClose={setOnClose}
         onClose={onClose}
