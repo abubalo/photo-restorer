@@ -3,13 +3,13 @@ import { FC, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "./Loader";
 
-interface Image {
-  original: string ;
-  restored: string ;
+interface ImageProps {
+  original: File | string ;
+  restored: File | string ;
   onClose: boolean;
   setOnClose: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const Modal: FC<Image> = ({
+const Modal: FC<ImageProps> = ({
   original,
   restored,
   setOnClose,
@@ -41,7 +41,7 @@ const Modal: FC<Image> = ({
               <div className="flex flex-col items-center gap-3">
                 <p className="text-lg">Orignal image</p>
                 <Image
-                  src={original}
+                  src={""}
                   width={500}
                   height={500}
                   alt="orignal image"
@@ -51,7 +51,7 @@ const Modal: FC<Image> = ({
               <div className="flex flex-col items-center gap-3">
                 <p className="text-lg">Restored image</p>
                 <Image
-                  src={restored}
+                  src={""}
                   width={500}
                   height={500}
                   alt="restored image"
