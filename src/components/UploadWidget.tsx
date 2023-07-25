@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import type { FC } from "react";
 import Loader from "./Loader";
-import { S3 } from "aws-sdk/clients/all";
+// import { S3 } from "aws-sdk/clients/all";
 import s3 from "../pages/api/config/s3Config";
 import Dropzone, {
   DropzoneRootProps,
@@ -9,7 +9,7 @@ import Dropzone, {
 } from "react-dropzone";
 
 type UploadProps = {
-  setImageUrl: React.Dispatch<React.SetStateAction<File | string>>;
+  setImageUrl: React.Dispatch<React.SetStateAction<string>>;
   setOnError: React.Dispatch<React.SetStateAction<boolean>>;
   onUpload: () => void;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
@@ -28,23 +28,30 @@ const UploadWidget: FC<UploadProps> = ({
     async (acceptedFiles: File[]) => {
       setIsLoading(true);
       const file = acceptedFiles[0];
-      setSelectedFile(file);
       const formData = new FormData();
       formData.append("file", file);
+
+      const fileMineType = file.type;
+      formData.append("Content-Type", fileMineType);
+
+      setSelectedFile(file);
+
       const params = {
         Bucket: "photo-restorer",
         Key: file.name,
-        Body: file
+        Body: file,
+        ACL: "public-read",
       };
 
-      s3.upload(params, (error: any, data: S3.ManagedUpload.SendData) => {
-        if (error) {
-          setOnError(true);
-          setErrorMessage(error.message);
-        } else {
-          setImageUrl(data.Location);
-        }
-      });
+      try {
+        const data = await s3.upload(params).promise();
+        setImageUrl(data.Location);
+      } catch (error: any) {
+        setOnError(true);
+
+        setErrorMessage(error.message);
+        console.log(error.message);
+      }
 
       onUpload();
       setIsLoading(false);
@@ -63,18 +70,18 @@ const UploadWidget: FC<UploadProps> = ({
       }) => (
         <label
           htmlFor="file"
-          className="w-1/2 h-52 p-4 flex flex-col justify-center items-center border-dashed border-2 border-gray-800 rounded-md cursor-pointer hover:bg-slate-900 hover:bg-opacity-50 transition-all ease-linear dark:border-neutral-800"
+          className="flex flex-col items-center justify-center w-1/2 p-4 transition-all ease-linear border-2 border-gray-800 border-dashed rounded-md cursor-pointer h-52 hover:bg-slate-900 hover:bg-opacity-50 dark:border-neutral-800"
           {...getRootProps()}
         >
           <input {...getInputProps()} />
           {isLoading ? (
             <Loader />
           ) : selectedFile ? (
-            <p className="text-base mt-2 px-5 py-3 rounded-md bg-neutral-800/50">
+            <p className="px-5 py-3 mt-2 text-base rounded-md bg-neutral-800/50">
               Selected file: {selectedFile.name}
             </p>
           ) : (
-            <p className="text-base mt-2 px-5 py-3 rounded-md bg-neutral-800/50">
+            <p className="px-5 py-3 mt-2 text-base rounded-md bg-neutral-800/50">
               Drag and drop a .png or .jpg file here, or click to select a file
             </p>
           )}
