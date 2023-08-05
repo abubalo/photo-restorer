@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Modal from "../components/Modal";
 import axios, { AxiosResponse } from "axios";
 import Head from "next/head";
 import UploadWidget from "../components/UploadWidget";
 import ErrorMessage from "../components/ErrorMessage";
+import Image from "next/image";
+
 
 export default function Home() {
-  const [imageUrl, setImageUrl] = useState<File | string>("");
-  const [restoredImg, setRestoredImg] = useState<File | null>(null);
+  const [imageUrl, setimageUrl] = useState<string>("");
+  const [restoredImg, setRestoredImg] = useState<string>("");
 
   const [onClose, setOnClose] = useState(false);
   const [onError, setOnError] = useState(false);
@@ -16,17 +18,18 @@ export default function Home() {
 
   async function handleImageRestore() {
     try {
-      const response: AxiosResponse = await axios.post("api/server", {
-        imageUrl,
-      });
-      const restoreImgResponse = await response.data;
-      setRestoredImg(restoreImgResponse);
+      const response: AxiosResponse = await axios.post(`api/server`,
+        {imageUrl: imageUrl}
+      );
+      const restoreImage = await response.data;
+      setRestoredImg(restoreImage);
+      console.log(restoreImage)
     } catch (error: any) {
       setOnError(true);
       setErrorMessage(error.message);
     }
   }
-
+  
   console.log(imageUrl, restoredImg);
 
   return (
@@ -48,10 +51,10 @@ export default function Home() {
           </Link>
         </nav>
       </header>
-      <div className="relative container mx-auto h-screen flex flex-col justify-center items-center  space-y-12 overflow-hidden">
-        <div className="text-center space-y-4">
-          <h1 className="text-7xl font-bold">Effortlessly Restore Images</h1>
-          <p className=" md:w-3/4 mx-auto md:text-lg">
+      <div className="container relative flex flex-col items-center justify-center h-screen mx-auto space-y-12 overflow-hidden">
+        <div className="space-y-4 text-center">
+          <h1 className="font-bold text-7xl">Effortlessly Restore Images</h1>
+          <p className="mx-auto md:w-3/4 md:text-lg">
             Say goodbye to blurry, faded, and damaged images.{" "}
             <strong>PixelRevive.io</strong> restores your photos to their
             original quality and beyond.
@@ -59,18 +62,21 @@ export default function Home() {
         </div>
 
         <UploadWidget
-          setImageUrl={setImageUrl}
+          setImageUrl={setimageUrl}
           onUpload={handleImageRestore}
           setOnError={setOnError}
           setErrorMessage={setErrorMessage}
         />
+        {imageUrl && (
+          <div className="w-1/3 h-1/4">
+            <Image src={imageUrl} alt="" width={50} height={50} />
+          </div>
+        )}
       </div>
 
       <Modal
         original={imageUrl}
-        restored={""}
-        // imageUrl={"/img2.jpg"}
-        // restoredImg={"/img2.jpg"}
+        restored={restoredImg}
         setOnClose={setOnClose}
         onClose={onClose}
       />
